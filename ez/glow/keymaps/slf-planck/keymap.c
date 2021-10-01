@@ -51,15 +51,10 @@ enum planck_keycodes {
 };
 
 enum tap_dance_codes {
-  DANCE_0,
-  DANCE_1,
-  DANCE_2,
-  DANCE_3,
-  DANCE_4,
-  DANCE_5,
-  DANCE_6,
-  DANCE_7,
-  DANCE_8,
+    L_BRAX, // Used in the keymap, add additional keycodes for each tapdance.
+    R_BRAX,
+    QUOTS,  
+    TACHE  
 };
 
 enum planck_layers {
@@ -78,20 +73,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,           KC_TRANSPARENT, KC_TRANSPARENT, KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           
     KC_A,           KC_S,           KC_D,           KC_F,           KC_G,           KC_TRANSPARENT, KC_TRANSPARENT, KC_H,           KC_J,           KC_K,           KC_L,           KC_SCOLON,      
     KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,           KC_NONUS_BSLASH,KC_SLASH,       KC_N,           KC_M,           KC_COMMA,       KC_DOT,         KC_ENTER,       
-    LCTL_T(KC_ESCAPE),KC_LALT,        KC_LGUI,        KC_LSHIFT,      LOWER,          KC_SPACE,       KC_NO,          RAISE,          KC_LSHIFT,      TD(DANCE_0),    KC_LALT,        LCTL_T(KC_TAB)
+    LCTL_T(KC_ESCAPE),KC_LALT,        KC_LGUI,        KC_LSHIFT,      LOWER,          KC_SPACE,       KC_NO,          RAISE,          KC_LSHIFT,      TD(QUOTS),    KC_LALT,        LCTL_T(KC_TAB)
   ),
 
   [_LOWER] = LAYOUT_planck_grid(
     LSFT(KC_1),     LSFT(KC_2),     LSFT(KC_3),     LSFT(KC_4),     LSFT(KC_5),     KC_TRANSPARENT, KC_TRANSPARENT, LSFT(KC_6),     LSFT(KC_7),     LSFT(KC_8),     KC_DELETE,      KC_BSPACE,      
-    LSFT(KC_TAB),   LALT_T(KC_F3),  KC_NO,          KC_NO,          TD(DANCE_1),    KC_TRANSPARENT, KC_TRANSPARENT, TD(DANCE_2),    KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       
-    LCTL_T(KC_F12), LALT_T(KC_X),   KC_NO,          LSFT_T(KC_NONUS_HASH),KC_NONUS_HASH,  TD(DANCE_3),    TD(DANCE_4),    KC_MINUS,       KC_EQUAL,       KC_COMMA,       KC_DOT,         KC_ENTER,       
+    LSFT(KC_TAB),   LALT_T(KC_F3),  KC_NO,          KC_NO,          TD(L_BRAX),    KC_TRANSPARENT, KC_TRANSPARENT, TD(R_BRAX),    KC_LEFT,        KC_DOWN,        KC_UP,          KC_RIGHT,       
+    LCTL_T(KC_F12), LALT_T(KC_X),   KC_NO,          LSFT_T(KC_NONUS_HASH),KC_NONUS_HASH,  TD(QUOTS),    TD(TACHE),    KC_MINUS,       KC_EQUAL,       KC_COMMA,       KC_DOT,         KC_ENTER,       
     KC_TRANSPARENT, KC_TRANSPARENT, KC_NO,          TO(4),          KC_TRANSPARENT, KC_AUDIO_MUTE,  KC_NO,          TO(4),          KC_NO,          KC_NO,          KC_TRANSPARENT, KC_TRANSPARENT
   ),
 
   [_RAISE] = LAYOUT_planck_grid(
     KC_1,           KC_2,           KC_3,           KC_4,           KC_5,           KC_NO,          KC_NO,          KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           
-    KC_F24,         LALT_T(KC_F3),  KC_NO,          KC_NO,          TD(DANCE_5),    KC_NO,          KC_NO,          TD(DANCE_6),    KC_HOME,        KC_PGDOWN,      KC_PGUP,        KC_END,         
-    LCTL_T(KC_F12), LALT_T(KC_X),   KC_NO,          KC_NO,          KC_NO,          TD(DANCE_7),    TD(DANCE_8),    KC_MINUS,       KC_EQUAL,       KC_TRANSPARENT, KC_TRANSPARENT, KC_NO,          
+    KC_F24,         LALT_T(KC_F3),  KC_NO,          KC_NO,          TD(L_BRAX),    KC_NO,          KC_NO,          TD(R_BRAX),    KC_HOME,        KC_PGDOWN,      KC_PGUP,        KC_END,         
+    LCTL_T(KC_F12), LALT_T(KC_X),   KC_NO,          KC_NO,          KC_NO,          TD(QUOTS),    TD(TACHE),    KC_MINUS,       KC_EQUAL,       KC_TRANSPARENT, KC_TRANSPARENT, KC_NO,          
     KC_TRANSPARENT, KC_LALT,        KC_NO,          KC_TRANSPARENT, TO(4),          KC_SPACE,       KC_NO,          KC_TRANSPARENT, TO(4),          KC_NO,          KC_LCTRL,       KC_NO
   ),
 
@@ -263,331 +258,183 @@ typedef struct {
     uint8_t step;
 } tap;
 
-enum {
-    SINGLE_TAP = 1,
-    SINGLE_HOLD,
-    DOUBLE_TAP,
-    DOUBLE_HOLD,
-    DOUBLE_SINGLE_TAP,
-    MORE_TAPS
-};
+typedef enum {
+    SINGLE_TAP,
+    DOUBLE_TAP,           // SINGLE_HOLD,
+    TRIPLE_TAP            // DOUBLE_SINGLE_TAP
+} td_state_t;
 
-static tap dance_state[9];
+// static tap dance_state[9];
 
-uint8_t dance_step(qk_tap_dance_state_t *state);
+// Create a global instance of the tapdance state type
+static td_state_t td_state;
 
-uint8_t dance_step(qk_tap_dance_state_t *state) {
+
+uint8_t cur_dance(qk_tap_dance_state_t *state);
+
+// `finished` and `reset` functions for each tapdance keycode
+void lbrax_finished(qk_tap_dance_state_t *state, void *user_data);
+void lbrax_reset(qk_tap_dance_state_t *state, void *user_data);
+
+void rbrax_finished(qk_tap_dance_state_t *state, void *user_data);
+void rbrax_reset(qk_tap_dance_state_t *state, void *user_data);
+
+void quots_finished(qk_tap_dance_state_t *state, void *user_data);
+void quots_reset(qk_tap_dance_state_t *state, void *user_data);
+
+void tache_finished(qk_tap_dance_state_t *state, void *user_data);
+void tache_reset(qk_tap_dance_state_t *state, void *user_data);
+
+// Determine the tapdance state to return
+uint8_t cur_dance(qk_tap_dance_state_t *state) {
     if (state->count == 1) {
-        if (state->interrupted || !state->pressed) return SINGLE_TAP;
-        else return SINGLE_HOLD;
+        return SINGLE_TAP;
     } else if (state->count == 2) {
-        if (state->interrupted) return DOUBLE_SINGLE_TAP;
-        else if (state->pressed) return DOUBLE_HOLD;
-        else return DOUBLE_TAP;
-    }
-    return MORE_TAPS;
-}
-
-
-void on_dance_0(qk_tap_dance_state_t *state, void *user_data);
-void dance_0_finished(qk_tap_dance_state_t *state, void *user_data);
-void dance_0_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void on_dance_0(qk_tap_dance_state_t *state, void *user_data) {
-    if(state->count == 3) {
-        tap_code16(KC_QUOTE);
-        tap_code16(KC_QUOTE);
-        tap_code16(KC_QUOTE);
-    }
-    if(state->count > 3) {
-        tap_code16(KC_QUOTE);
+        return DOUBLE_TAP;
+    } else if (state->count == 3) {
+        return TRIPLE_TAP;
+    } else {
+        reset_tap_dance (state);
+        return 3;
     }
 }
 
-void dance_0_finished(qk_tap_dance_state_t *state, void *user_data) {
-    dance_state[0].step = dance_step(state);
-    switch (dance_state[0].step) {
-        case SINGLE_TAP: register_code16(KC_QUOTE); break;
-        case DOUBLE_TAP: register_code16(LSFT(KC_2)); break;
-        case DOUBLE_SINGLE_TAP: tap_code16(KC_QUOTE); register_code16(KC_QUOTE);
+// Handle the possible states for each tapdance keycode you define:
+
+void lbrax_finished(qk_tap_dance_state_t *state, void *user_data) {
+    td_state = cur_dance(state);
+    switch (td_state) {
+        case SINGLE_TAP:
+            register_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            register_code16(KC_9);
+            break;
+        case DOUBLE_TAP:
+            register_code16(KC_LBRC);
+            break;
+        case TRIPLE_TAP: 
+            register_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            register_code16(KC_LBRC);
     }
 }
 
-void dance_0_reset(qk_tap_dance_state_t *state, void *user_data) {
-    wait_ms(10);
-    switch (dance_state[0].step) {
-        case SINGLE_TAP: unregister_code16(KC_QUOTE); break;
-        case DOUBLE_TAP: unregister_code16(LSFT(KC_2)); break;
-        case DOUBLE_SINGLE_TAP: unregister_code16(KC_QUOTE); break;
-    }
-    dance_state[0].step = 0;
-}
-void on_dance_1(qk_tap_dance_state_t *state, void *user_data);
-void dance_1_finished(qk_tap_dance_state_t *state, void *user_data);
-void dance_1_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void on_dance_1(qk_tap_dance_state_t *state, void *user_data) {
-    if(state->count == 3) {
-        tap_code16(LSFT(KC_9));
-        tap_code16(LSFT(KC_9));
-        tap_code16(LSFT(KC_9));
-    }
-    if(state->count > 3) {
-        tap_code16(LSFT(KC_9));
+void lbrax_reset(qk_tap_dance_state_t *state, void *user_data) {
+    switch (td_state) {
+        case SINGLE_TAP:
+            unregister_code16(KC_9);
+            unregister_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            break;
+        case DOUBLE_TAP:
+            unregister_code16(KC_LBRC);
+            break;
+        case TRIPLE_TAP:
+            unregister_code16(KC_LBRC);
+            unregister_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
     }
 }
 
-void dance_1_finished(qk_tap_dance_state_t *state, void *user_data) {
-    dance_state[1].step = dance_step(state);
-    switch (dance_state[1].step) {
-        case SINGLE_TAP: register_code16(LSFT(KC_9)); break;
-        case DOUBLE_TAP: register_code16(KC_LBRACKET); break;
-        case DOUBLE_HOLD: register_code16(LSFT(KC_LBRACKET)); break;
-        case DOUBLE_SINGLE_TAP: tap_code16(LSFT(KC_9)); register_code16(LSFT(KC_9));
+// Handle the possible states for each tapdance keycode you define:
+
+void rbrax_finished(qk_tap_dance_state_t *state, void *user_data) {
+    td_state = cur_dance(state);
+    switch (td_state) {
+        case SINGLE_TAP:
+            register_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            register_code16(KC_0);
+            break;
+        case DOUBLE_TAP:
+            register_code16(KC_RBRC);
+            break;
+        case TRIPLE_TAP: // Allow nesting of 2 parens `((` within tapping term
+            register_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            register_code16(KC_RBRC);
     }
 }
 
-void dance_1_reset(qk_tap_dance_state_t *state, void *user_data) {
-    wait_ms(10);
-    switch (dance_state[1].step) {
-        case SINGLE_TAP: unregister_code16(LSFT(KC_9)); break;
-        case DOUBLE_TAP: unregister_code16(KC_LBRACKET); break;
-        case DOUBLE_HOLD: unregister_code16(LSFT(KC_LBRACKET)); break;
-        case DOUBLE_SINGLE_TAP: unregister_code16(LSFT(KC_9)); break;
-    }
-    dance_state[1].step = 0;
-}
-void on_dance_2(qk_tap_dance_state_t *state, void *user_data);
-void dance_2_finished(qk_tap_dance_state_t *state, void *user_data);
-void dance_2_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void on_dance_2(qk_tap_dance_state_t *state, void *user_data) {
-    if(state->count == 3) {
-        tap_code16(LSFT(KC_0));
-        tap_code16(LSFT(KC_0));
-        tap_code16(LSFT(KC_0));
-    }
-    if(state->count > 3) {
-        tap_code16(LSFT(KC_0));
+void rbrax_reset(qk_tap_dance_state_t *state, void *user_data) {
+    switch (td_state) {
+        case SINGLE_TAP:
+            unregister_code16(KC_0);
+            unregister_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            break;
+        case DOUBLE_TAP:
+            unregister_code16(KC_RBRC);
+            break;
+        case TRIPLE_TAP:
+            unregister_code16(KC_RBRC);
+            unregister_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
     }
 }
 
-void dance_2_finished(qk_tap_dance_state_t *state, void *user_data) {
-    dance_state[2].step = dance_step(state);
-    switch (dance_state[2].step) {
-        case SINGLE_TAP: register_code16(LSFT(KC_0)); break;
-        case DOUBLE_TAP: register_code16(KC_RBRACKET); break;
-        case DOUBLE_HOLD: register_code16(LSFT(KC_RBRACKET)); break;
-        case DOUBLE_SINGLE_TAP: tap_code16(LSFT(KC_0)); register_code16(LSFT(KC_0));
+void quots_finished(qk_tap_dance_state_t *state, void *user_data) {
+    td_state = cur_dance(state);
+    switch (td_state) {
+        case SINGLE_TAP:
+            // register_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            register_code16(KC_QUOT);
+            break;
+        case DOUBLE_TAP:
+            register_code16(KC_AT);
+            break;
+        case TRIPLE_TAP: // Allow nesting of 2 parens `((` within tapping term
+            // register_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            register_code16(KC_DQUO);
     }
 }
 
-void dance_2_reset(qk_tap_dance_state_t *state, void *user_data) {
-    wait_ms(10);
-    switch (dance_state[2].step) {
-        case SINGLE_TAP: unregister_code16(LSFT(KC_0)); break;
-        case DOUBLE_TAP: unregister_code16(KC_RBRACKET); break;
-        case DOUBLE_HOLD: unregister_code16(LSFT(KC_RBRACKET)); break;
-        case DOUBLE_SINGLE_TAP: unregister_code16(LSFT(KC_0)); break;
-    }
-    dance_state[2].step = 0;
-}
-void dance_3_finished(qk_tap_dance_state_t *state, void *user_data);
-void dance_3_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void dance_3_finished(qk_tap_dance_state_t *state, void *user_data) {
-    dance_state[3].step = dance_step(state);
-    switch (dance_state[3].step) {
-        case DOUBLE_TAP: register_code16(LSFT(KC_2)); break;
+void quots_reset(qk_tap_dance_state_t *state, void *user_data) {
+    switch (td_state) {
+        case SINGLE_TAP:
+            unregister_code16(KC_QUOT);
+            // unregister_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            break;
+        case DOUBLE_TAP:
+            unregister_code16(KC_AT);
+            break;
+        case TRIPLE_TAP:
+            unregister_code16(KC_DQUO);
+            // unregister_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
     }
 }
 
-void dance_3_reset(qk_tap_dance_state_t *state, void *user_data) {
-    wait_ms(10);
-    switch (dance_state[3].step) {
-        case DOUBLE_TAP: unregister_code16(LSFT(KC_2)); break;
-    }
-    dance_state[3].step = 0;
-}
-void on_dance_4(qk_tap_dance_state_t *state, void *user_data);
-void dance_4_finished(qk_tap_dance_state_t *state, void *user_data);
-void dance_4_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void on_dance_4(qk_tap_dance_state_t *state, void *user_data) {
-    if(state->count == 3) {
-        tap_code16(LSFT(KC_3));
-        tap_code16(LSFT(KC_3));
-        tap_code16(LSFT(KC_3));
-    }
-    if(state->count > 3) {
-        tap_code16(LSFT(KC_3));
+void tache_finished(qk_tap_dance_state_t *state, void *user_data) {
+    td_state = cur_dance(state);
+    switch (td_state) {
+        case SINGLE_TAP:
+            // register_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            register_code16(KC_NUHS);
+            break;
+        case DOUBLE_TAP:
+            register_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here        
+            register_code16(KC_NUHS);
+            break;
+        case TRIPLE_TAP: // Allow nesting of 2 parens `((` within tapping term
+            // register_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            register_code16(KC_GRV);
     }
 }
 
-void dance_4_finished(qk_tap_dance_state_t *state, void *user_data) {
-    dance_state[4].step = dance_step(state);
-    switch (dance_state[4].step) {
-        case SINGLE_TAP: register_code16(LSFT(KC_3)); break;
-        case DOUBLE_TAP: register_code16(LSFT(KC_3)); register_code16(LSFT(KC_3)); break;
-        case DOUBLE_SINGLE_TAP: tap_code16(LSFT(KC_3)); register_code16(LSFT(KC_3));
+void tache_reset(qk_tap_dance_state_t *state, void *user_data) {
+    switch (td_state) {
+        case SINGLE_TAP:
+            unregister_code16(KC_NUHS);
+            // unregister_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            break;
+        case DOUBLE_TAP:
+            unregister_code16(KC_NUHS);
+            unregister_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            break;
+        case TRIPLE_TAP:
+            unregister_code16(KC_GRV);
+            // unregister_mods(MOD_BIT(KC_LSFT)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
     }
 }
 
-void dance_4_reset(qk_tap_dance_state_t *state, void *user_data) {
-    wait_ms(10);
-    switch (dance_state[4].step) {
-        case SINGLE_TAP: unregister_code16(LSFT(KC_3)); break;
-        case DOUBLE_TAP: unregister_code16(LSFT(KC_3)); break;
-        case DOUBLE_SINGLE_TAP: unregister_code16(LSFT(KC_3)); break;
-    }
-    dance_state[4].step = 0;
-}
-void on_dance_5(qk_tap_dance_state_t *state, void *user_data);
-void dance_5_finished(qk_tap_dance_state_t *state, void *user_data);
-void dance_5_reset(qk_tap_dance_state_t *state, void *user_data);
 
-void on_dance_5(qk_tap_dance_state_t *state, void *user_data) {
-    if(state->count == 3) {
-        tap_code16(LSFT(KC_9));
-        tap_code16(LSFT(KC_9));
-        tap_code16(LSFT(KC_9));
-    }
-    if(state->count > 3) {
-        tap_code16(LSFT(KC_9));
-    }
-}
-
-void dance_5_finished(qk_tap_dance_state_t *state, void *user_data) {
-    dance_state[5].step = dance_step(state);
-    switch (dance_state[5].step) {
-        case SINGLE_TAP: register_code16(LSFT(KC_9)); break;
-        case DOUBLE_TAP: register_code16(KC_LBRACKET); break;
-        case DOUBLE_HOLD: register_code16(LSFT(KC_LBRACKET)); break;
-        case DOUBLE_SINGLE_TAP: tap_code16(LSFT(KC_9)); register_code16(LSFT(KC_9));
-    }
-}
-
-void dance_5_reset(qk_tap_dance_state_t *state, void *user_data) {
-    wait_ms(10);
-    switch (dance_state[5].step) {
-        case SINGLE_TAP: unregister_code16(LSFT(KC_9)); break;
-        case DOUBLE_TAP: unregister_code16(KC_LBRACKET); break;
-        case DOUBLE_HOLD: unregister_code16(LSFT(KC_LBRACKET)); break;
-        case DOUBLE_SINGLE_TAP: unregister_code16(LSFT(KC_9)); break;
-    }
-    dance_state[5].step = 0;
-}
-void on_dance_6(qk_tap_dance_state_t *state, void *user_data);
-void dance_6_finished(qk_tap_dance_state_t *state, void *user_data);
-void dance_6_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void on_dance_6(qk_tap_dance_state_t *state, void *user_data) {
-    if(state->count == 3) {
-        tap_code16(LSFT(KC_9));
-        tap_code16(LSFT(KC_9));
-        tap_code16(LSFT(KC_9));
-    }
-    if(state->count > 3) {
-        tap_code16(LSFT(KC_9));
-    }
-}
-
-void dance_6_finished(qk_tap_dance_state_t *state, void *user_data) {
-    dance_state[6].step = dance_step(state);
-    switch (dance_state[6].step) {
-        case SINGLE_TAP: register_code16(LSFT(KC_9)); break;
-        case DOUBLE_TAP: register_code16(KC_RBRACKET); break;
-        case DOUBLE_HOLD: register_code16(LSFT(KC_RBRACKET)); break;
-        case DOUBLE_SINGLE_TAP: tap_code16(LSFT(KC_9)); register_code16(LSFT(KC_9));
-    }
-}
-
-void dance_6_reset(qk_tap_dance_state_t *state, void *user_data) {
-    wait_ms(10);
-    switch (dance_state[6].step) {
-        case SINGLE_TAP: unregister_code16(LSFT(KC_9)); break;
-        case DOUBLE_TAP: unregister_code16(KC_RBRACKET); break;
-        case DOUBLE_HOLD: unregister_code16(LSFT(KC_RBRACKET)); break;
-        case DOUBLE_SINGLE_TAP: unregister_code16(LSFT(KC_9)); break;
-    }
-    dance_state[6].step = 0;
-}
-void on_dance_7(qk_tap_dance_state_t *state, void *user_data);
-void dance_7_finished(qk_tap_dance_state_t *state, void *user_data);
-void dance_7_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void on_dance_7(qk_tap_dance_state_t *state, void *user_data) {
-    if(state->count == 3) {
-        tap_code16(KC_QUOTE);
-        tap_code16(KC_QUOTE);
-        tap_code16(KC_QUOTE);
-    }
-    if(state->count > 3) {
-        tap_code16(KC_QUOTE);
-    }
-}
-
-void dance_7_finished(qk_tap_dance_state_t *state, void *user_data) {
-    dance_state[7].step = dance_step(state);
-    switch (dance_state[7].step) {
-        case SINGLE_TAP: register_code16(KC_QUOTE); break;
-        case DOUBLE_TAP: register_code16(KC_QUOTE); register_code16(KC_QUOTE); break;
-        case DOUBLE_SINGLE_TAP: tap_code16(KC_QUOTE); register_code16(KC_QUOTE);
-    }
-}
-
-void dance_7_reset(qk_tap_dance_state_t *state, void *user_data) {
-    wait_ms(10);
-    switch (dance_state[7].step) {
-        case SINGLE_TAP: unregister_code16(KC_QUOTE); break;
-        case DOUBLE_TAP: unregister_code16(KC_QUOTE); break;
-        case DOUBLE_SINGLE_TAP: unregister_code16(KC_QUOTE); break;
-    }
-    dance_state[7].step = 0;
-}
-void on_dance_8(qk_tap_dance_state_t *state, void *user_data);
-void dance_8_finished(qk_tap_dance_state_t *state, void *user_data);
-void dance_8_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void on_dance_8(qk_tap_dance_state_t *state, void *user_data) {
-    if(state->count == 3) {
-        tap_code16(LSFT(KC_3));
-        tap_code16(LSFT(KC_3));
-        tap_code16(LSFT(KC_3));
-    }
-    if(state->count > 3) {
-        tap_code16(LSFT(KC_3));
-    }
-}
-
-void dance_8_finished(qk_tap_dance_state_t *state, void *user_data) {
-    dance_state[8].step = dance_step(state);
-    switch (dance_state[8].step) {
-        case SINGLE_TAP: register_code16(LSFT(KC_3)); break;
-        case DOUBLE_TAP: register_code16(LSFT(KC_3)); register_code16(LSFT(KC_3)); break;
-        case DOUBLE_SINGLE_TAP: tap_code16(LSFT(KC_3)); register_code16(LSFT(KC_3));
-    }
-}
-
-void dance_8_reset(qk_tap_dance_state_t *state, void *user_data) {
-    wait_ms(10);
-    switch (dance_state[8].step) {
-        case SINGLE_TAP: unregister_code16(LSFT(KC_3)); break;
-        case DOUBLE_TAP: unregister_code16(LSFT(KC_3)); break;
-        case DOUBLE_SINGLE_TAP: unregister_code16(LSFT(KC_3)); break;
-    }
-    dance_state[8].step = 0;
-}
-
+// Define `ACTION_TAP_DANCE_FN_ADVANCED()` for each tapdance keycode, passing in `finished` and `reset` functions
 qk_tap_dance_action_t tap_dance_actions[] = {
-        [DANCE_0] = ACTION_TAP_DANCE_FN_ADVANCED(on_dance_0, dance_0_finished, dance_0_reset),
-        [DANCE_1] = ACTION_TAP_DANCE_FN_ADVANCED(on_dance_1, dance_1_finished, dance_1_reset),
-        [DANCE_2] = ACTION_TAP_DANCE_FN_ADVANCED(on_dance_2, dance_2_finished, dance_2_reset),
-        [DANCE_3] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_3_finished, dance_3_reset),
-        [DANCE_4] = ACTION_TAP_DANCE_FN_ADVANCED(on_dance_4, dance_4_finished, dance_4_reset),
-        [DANCE_5] = ACTION_TAP_DANCE_FN_ADVANCED(on_dance_5, dance_5_finished, dance_5_reset),
-        [DANCE_6] = ACTION_TAP_DANCE_FN_ADVANCED(on_dance_6, dance_6_finished, dance_6_reset),
-        [DANCE_7] = ACTION_TAP_DANCE_FN_ADVANCED(on_dance_7, dance_7_finished, dance_7_reset),
-        [DANCE_8] = ACTION_TAP_DANCE_FN_ADVANCED(on_dance_8, dance_8_finished, dance_8_reset),
+    [L_BRAX] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, lbrax_finished, lbrax_reset),
+    [R_BRAX] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, rbrax_finished, rbrax_reset),
+    [QUOTS] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, quots_finished, quots_reset),
+    [TACHE] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, tache_finished, tache_reset)
 };
 
